@@ -1,0 +1,11 @@
+Revision history for Compress::Zlib::Raw
+
+{{$NEXT}}
+
+2.0.0  2026-11-17T13:09:19Z
+    - Bundle zlib 1.4 for 64-bit macOS, Windows, and Linux (glibc and musl).
+    - Load only the matching bundled library; reject unsupported platforms.
+    - Resolve installed resources without deprecated string coercion.
+    - Test the exact native version and native stream compatibility.
+    - Configure mi6 releases and generate the README from Pod documentation.
+    - Test Linux glibc/musl, macOS Intel/ARM64, and Windows with GitHub Actions.
