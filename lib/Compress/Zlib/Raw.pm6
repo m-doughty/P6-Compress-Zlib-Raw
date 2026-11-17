@@ -4,20 +4,47 @@ unit module Compress::Zlib::Raw;
 use NativeCall;
 
 sub find-lib {
-    state $lib;
-    unless $lib {
-        if $*VM.config<dll> ~~ /dll/ {
-            # we're on windows, different library name
-            $lib = ~(%?RESOURCES{"zlib1.dll"});
-        } elsif $*VM.config<dll> ~~ /so$/ {
-            $lib = 'libz.so.1';
-        } elsif $*VM.config<dll> ~~ /dylib$/ {
-            $lib = 'libz.dylib';
-        } else {
-            $lib = 'libz';
-        }
-    }
-    $lib
+	state $lib = do {
+		my $os = $*KERNEL.name.lc;
+		my $hardware = $*KERNEL.hardware.lc;
+		my $arch = do given $hardware {
+			when 'x86_64' | 'amd64' { 'x86_64' }
+			when 'aarch64' | 'arm64' { 'aarch64' }
+			default {
+				die "Compress::Zlib::Raw has no bundled zlib for architecture '$hardware'";
+			}
+		};
+		die 'Compress::Zlib::Raw requires a 64-bit process'
+			unless nativesizeof(Pointer) == 8;
+
+		my $key = do given $os {
+			when 'darwin' { "lib/macos-$arch/libz.dylib" }
+			when 'win32' | 'mswin32' { "lib/windows-$arch/zlib.dll" }
+			when 'linux' {
+				# WHY: The mapped loader identifies this process's libc, even
+				# when both musl and glibc libraries are installed on the host.
+				my $maps = '/proc/self/maps'.IO.open(:r);
+				LEAVE $maps.close;
+				my ($musl, $glibc) = False, False;
+				for $maps.lines -> $line {
+					$musl ||= $line.contains('/ld-musl-') || $line.contains('/libc.musl-');
+					$glibc ||= $line.contains('/ld-linux-') || $line.contains('/ld-2.');
+				}
+				die 'Compress::Zlib::Raw cannot identify the Linux process libc'
+					unless ($musl xor $glibc);
+				$musl ?? "lib/linux-musl-$arch/libz.so.1" !! "lib/linux-$arch/libz.so.1";
+			}
+			default {
+				die "Compress::Zlib::Raw has no bundled zlib for operating system '$os'";
+			}
+		};
+		my $resource = %?RESOURCES{$key};
+		my $path = $resource.defined ?? $resource.IO !! Nil;
+		die "Compress::Zlib::Raw is missing bundled zlib resource '$key'"
+			unless $path ~~ IO::Path && $path.f;
+		$path.absolute.Str;
+	};
+	$lib;
 }
 
 # structs
@@ -74,8 +101,8 @@ our class gz_header is repr('CStruct') is export {
 
 # constants
 
-constant ZLIB_VERSION = "1.2.8";
-constant ZLIB_VERNUM = 0x1280;
+constant ZLIB_VERSION = "1.4";
+constant ZLIB_VERNUM = 0x1400;
 
 constant Z_NULL = 0;
 

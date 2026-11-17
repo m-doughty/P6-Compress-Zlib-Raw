@@ -1,0 +1,40 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  raku:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-15-intel
+          - windows-2025
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: Raku/setup-raku@v1
+        with:
+          raku-version: '2026.09'
+      - name: Install App::Prove6
+        run: zef install --/test App::Prove6
+      - name: Install distribution
+        run: zef install --/test .
+      - name: Run tests
+        run: prove6 -j1 -Ilib t/
+      - name: Check installed native library
+        shell: bash
+        run: |
+          raku -e 'use Compress::Zlib::Raw:auth<zef:apogee>;
+          die "Expected bundled zlib 1.4" unless zlibVersion() eq "1.4";
+          say "Installed bundled zlib: " ~ zlibVersion()'

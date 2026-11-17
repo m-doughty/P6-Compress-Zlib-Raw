@@ -1,1 +1,3 @@
-.precomp
+.precomp/
+/Compress-Zlib-Raw-*.tar.gz
+/Compress-Zlib-Raw-*/

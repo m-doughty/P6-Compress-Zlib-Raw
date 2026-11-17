@@ -1,0 +1,73 @@
+=begin pod
+
+=head1 NAME
+
+Compress::Zlib::Raw - Low-level NativeCall bindings to zlib
+
+=head1 DESCRIPTION
+
+Low-level NativeCall bindings to zlib, with bundled zlib 1.4 libraries.
+
+The package loads its own library from distribution resources. It does not
+use a system zlib, download libraries, or compile code during installation.
+Missing resources and unsupported platforms produce an error.
+
+=head1 SUPPORTED PLATFORMS
+
+=begin table
+Platform         | Architectures  | Minimum runtime
+=================|================|=================================
+macOS            | x86-64, ARM64  | macOS 11
+Windows          | x86-64, ARM64  | Windows with the Universal C Runtime
+Linux with glibc | x86-64         | glibc 2.14
+Linux with glibc | ARM64          | glibc 2.17
+Linux with musl  | x86-64, ARM64  | See the bundled artifact manifest
+=end table
+
+Linux selects its libc variant from the running process's mapped loader.
+It requires access to C</proc/self/maps>. Only 64-bit processes are supported.
+
+Artifact origins, checksums, and build details are recorded in
+L<resources/native-manifest.json|resources/native-manifest.json>.
+The zlib license is included in
+L<resources/licenses/zlib.txt|resources/licenses/zlib.txt>.
+
+=head1 EXAMPLE
+
+=begin code :lang<raku>
+use v6;
+use Compress::Zlib::Raw;
+use NativeCall;
+
+my $to-compress = 'test'.encode;
+my $return-buf-len = CArray[long].new;
+$return-buf-len[0] = 128;
+
+my $return-buf = buf8.new;
+$return-buf[127] = 0;
+
+my $result = compress($return-buf, $return-buf-len, $to-compress, 4);
+die if $result != Compress::Zlib::Raw::Z_OK;
+
+my $orig-buf = buf8.new;
+$orig-buf[127] = 1;
+
+my $orig-size = CArray[long].new;
+$orig-size[0] = 128;
+
+$result = uncompress($orig-buf, $orig-size, $return-buf, $return-buf-len[0]);
+die if $result != Compress::Zlib::Raw::Z_OK;
+say $orig-buf.subbuf(0, $orig-size[0]).decode; # test
+=end code
+
+=head1 AUTHORS AND MAINTAINERS
+
+Originally written by Andrew Egeler (retupmoca), L<https://github.com/retupmoca/>.
+Maintained in this fork by Matt Doughty.
+
+=head1 LICENSE AND COPYRIGHT
+
+The Raku bindings use the MIT License. Bundled zlib libraries use the zlib
+license; their notice is preserved in C<resources/licenses/zlib.txt>.
+
+=end pod

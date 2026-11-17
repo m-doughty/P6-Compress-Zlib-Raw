@@ -7,8 +7,7 @@ use Compress::Zlib::Raw;
 use NativeCall;
 
 ok True, 'Compiled';
-my $version;
-ok (($version = zlibVersion) ~~ /^1/), 'Got zlib version ('~$version~')';
+is zlibVersion(), '1.4', 'Loaded bundled zlib 1.4';
 
 my $to-compress = "test".encode;
 

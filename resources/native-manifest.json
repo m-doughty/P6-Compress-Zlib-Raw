@@ -1,0 +1,248 @@
+{
+  "zlib_version": "1.4",
+  "license": "licenses/zlib.txt",
+  "verification_date": "2026-11-17",
+  "artifacts": [
+    {
+      "resource": "lib/windows-x86_64/zlib.dll",
+      "sha256": "934103c50623302548a1cf66fbc22f0029e4eb4556343252a505e2fc005e835f",
+      "source": {
+        "publisher": "MSYS2",
+        "url": "https://mirror.msys2.org/mingw/ucrt64/mingw-w64-ucrt-x86_64-zlib-1.4-2-any.pkg.tar.zst",
+        "sha256": "172541cf5e2391a402f092104988699b0163129d22be1d6b4b201bfb84af6fcf",
+        "member": "ucrt64/bin/libz-1.dll",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-zlib"
+      },
+      "modifications": [
+        "Renamed libz-1.dll to zlib.dll; file contents unchanged."
+      ],
+      "requirements": {
+        "os": "Windows",
+        "architecture": "x86_64",
+        "runtime": "Windows Universal CRT; only KERNEL32 and api-ms-win-crt imports"
+      },
+      "verification": [
+        "PE architecture and ordinary C ABI exports inspected; Windows execution not performed."
+      ]
+    },
+    {
+      "resource": "lib/linux-x86_64/libz.so.1",
+      "sha256": "6a912a2dea9579c3a2ded836db6fc2f5d960d254c0da7cdaca436ef343bc836a",
+      "source": {
+        "publisher": "Homebrew",
+        "url": "https://ghcr.io/v2/homebrew/core/zlib/blobs/sha256:b3eb31f74b7bdd08a084eef995399d27553b97f9639aa59eb525c402db67becc",
+        "sha256": "b3eb31f74b7bdd08a084eef995399d27553b97f9639aa59eb525c402db67becc",
+        "member": "zlib/1.4/lib/libz.so.1.4",
+        "metadata_url": "https://formulae.brew.sh/api/formula/zlib.json"
+      },
+      "modifications": [
+        "Removed Homebrew placeholder RPATH using patchelf 0.18.0 --remove-rpath.",
+        "Renamed libz.so.1.4 to libz.so.1."
+      ],
+      "requirements": {
+        "os": "Linux",
+        "architecture": "x86_64",
+        "libc": "glibc",
+        "maximum_required_glibc_symbol_version": "2.14",
+        "needed": [
+          "libc.so.6"
+        ]
+      },
+      "verification": [
+        "ELF architecture, SONAME, symbol versions, exports and absence of RPATH inspected.",
+        "Explicit library load, exact version and binary compression/decompression passed in manylinux_2_28 x86_64."
+      ]
+    },
+    {
+      "resource": "lib/linux-musl-x86_64/libz.so.1",
+      "sha256": "9995c2fe07ba436423709dd8ce6a186c2c6b3db7ac7719496a55554c4a95274e",
+      "source": {
+        "publisher": "Alpine Linux",
+        "url": "https://dl-cdn.alpinelinux.org/alpine/edge/main/x86_64/zlib-1.4-r0.apk",
+        "sha256": "c81f2e580754a6bebb9b3a17034082d35cfa275723d5a27c47e8bfdfab18aca7",
+        "member": "lib/libz.so.1.4",
+        "index_url": "https://dl-cdn.alpinelinux.org/alpine/edge/main/x86_64/APKINDEX.tar.gz",
+        "index_sha256": "4bbc6fbd512c7faf7738c06485cf7e11a53ca9d83225c668aa45f625d5268855",
+        "apk_control_checksum": "Q1qDG2JUDatFRrLWszVx3sU+o38Qo=",
+        "apk_data_sha256": "770e5eadd4759c3a26aa8e5f55aa45084f435ce02ea3fbe7e3dbebb343c45533",
+        "recipe_commit": "b2950bb0ed4be3c96c018350a4d1848316bf211c"
+      },
+      "modifications": [
+        "Renamed libz.so.1.4 to libz.so.1; file contents unchanged."
+      ],
+      "requirements": {
+        "os": "Linux",
+        "architecture": "x86_64",
+        "libc": "musl",
+        "needed": [
+          "libc.musl-x86_64.so.1"
+        ],
+        "minimum_musl_version": "Not established; package built on Alpine edge."
+      },
+      "verification": [
+        "APK control stream matches HTTPS APKINDEX checksum; data stream matches control metadata SHA-256.",
+        "ELF architecture, SONAME, dependencies and exports inspected."
+      ]
+    },
+    {
+      "resource": "lib/macos-x86_64/libz.dylib",
+      "sha256": "28713ba26869ee996966974c589fcae5eb70132d9f694ba3d36648e5fe97cf15",
+      "source": {
+        "publisher": "zlib upstream",
+        "url": "https://zlib.net/zlib-1.4.tar.gz",
+        "sha256": "02dd159783677a749c04adbdd02b55b8a2bcc7e054f51b76b549199a916ad584"
+      },
+      "build": {
+        "compiler": "Apple clang 21.0.0 (clang-2100.0.123.102)",
+        "sdk": "26.4",
+        "CC": "clang -arch x86_64",
+        "CFLAGS": "-O2 -mmacosx-version-min=11.0",
+        "LDFLAGS": "-arch x86_64 -mmacosx-version-min=11.0",
+        "commands": [
+          "./configure",
+          "make -j4",
+          "make test"
+        ]
+      },
+      "modifications": [
+        "Set install name to @rpath/libz.1.dylib with install_name_tool.",
+        "Ad-hoc signed with codesign --force --sign -."
+      ],
+      "requirements": {
+        "os": "macOS",
+        "architecture": "x86_64",
+        "minimum_os_version": "11.0",
+        "needed": [
+          "/usr/lib/libSystem.B.dylib"
+        ]
+      },
+      "verification": [
+        "Upstream static and shared make test passed under Rosetta.",
+        "Mach-O architecture, minimum OS version and dependencies inspected.",
+        "Final relocated and signed resource passed explicit dlopen, zlibVersion == 1.4 and compression/decompression smoke test; x86_64 executed under Rosetta."
+      ]
+    },
+    {
+      "resource": "lib/windows-aarch64/zlib.dll",
+      "sha256": "5bc4df08b4965cc589a79f3e8561ef8cce9df2e6997bf95ad543e5879902f931",
+      "source": {
+        "publisher": "MSYS2",
+        "url": "https://mirror.msys2.org/mingw/clangarm64/mingw-w64-clang-aarch64-zlib-1.4-2-any.pkg.tar.zst",
+        "sha256": "ff28742649461c300f8817cc106252ad817aab9611f391c8112ba73f30dafa70",
+        "member": "clangarm64/bin/libz-1.dll",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-clang-aarch64-zlib"
+      },
+      "modifications": [
+        "Renamed libz-1.dll to zlib.dll; file contents unchanged."
+      ],
+      "requirements": {
+        "os": "Windows",
+        "architecture": "aarch64",
+        "runtime": "Windows Universal CRT; only KERNEL32 and api-ms-win-crt imports"
+      },
+      "verification": [
+        "PE architecture and ordinary C ABI exports inspected; Windows execution not performed."
+      ]
+    },
+    {
+      "resource": "lib/linux-aarch64/libz.so.1",
+      "sha256": "7aaf7f9b4f06066ea70882797ea023e75c98e456b1fa145d34d22dc78da92bfb",
+      "source": {
+        "publisher": "Homebrew",
+        "url": "https://ghcr.io/v2/homebrew/core/zlib/blobs/sha256:49e4dcb67cdd2c48deebe117d4cd1507641535d94f309e268b9e0e2ae9bf7a04",
+        "sha256": "49e4dcb67cdd2c48deebe117d4cd1507641535d94f309e268b9e0e2ae9bf7a04",
+        "member": "zlib/1.4/lib/libz.so.1.4",
+        "metadata_url": "https://formulae.brew.sh/api/formula/zlib.json"
+      },
+      "modifications": [
+        "Removed Homebrew placeholder RPATH using patchelf 0.18.0 --remove-rpath.",
+        "Renamed libz.so.1.4 to libz.so.1."
+      ],
+      "requirements": {
+        "os": "Linux",
+        "architecture": "aarch64",
+        "libc": "glibc",
+        "maximum_required_glibc_symbol_version": "2.17",
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ]
+      },
+      "verification": [
+        "ELF architecture, SONAME, symbol versions, exports and absence of RPATH inspected.",
+        "Raw (35) and wrapper (70) Raku assertions passed in Debian trixie ARM64, with networking disabled."
+      ]
+    },
+    {
+      "resource": "lib/linux-musl-aarch64/libz.so.1",
+      "sha256": "0ad1835b2abd14d0297d4ef0694460bc06ed964478a166a698c10608b2b2abbb",
+      "source": {
+        "publisher": "Alpine Linux",
+        "url": "https://dl-cdn.alpinelinux.org/alpine/edge/main/aarch64/zlib-1.4-r0.apk",
+        "sha256": "64c790260fc28ba0296d78550908f19cf11eabbd3e2f6ec9c7109a166912d216",
+        "member": "lib/libz.so.1.4",
+        "index_url": "https://dl-cdn.alpinelinux.org/alpine/edge/main/aarch64/APKINDEX.tar.gz",
+        "index_sha256": "f70dc5453342d99edb7f732550eb30f5d7e43b888ee825af191be5bf71f09d93",
+        "apk_control_checksum": "Q1KmB8FOHCIgq7jAwzCHL0QKj96Ik=",
+        "apk_data_sha256": "7eddc4a90e61e4c877f55871606480db2ec06f8d4e65b6a8b8773eaa5c13b5d8",
+        "recipe_commit": "b2950bb0ed4be3c96c018350a4d1848316bf211c"
+      },
+      "modifications": [
+        "Renamed libz.so.1.4 to libz.so.1; file contents unchanged."
+      ],
+      "requirements": {
+        "os": "Linux",
+        "architecture": "aarch64",
+        "libc": "musl",
+        "needed": [
+          "libc.musl-aarch64.so.1"
+        ],
+        "minimum_musl_version": "Not established; package built on Alpine edge."
+      },
+      "verification": [
+        "APK control stream matches HTTPS APKINDEX checksum; data stream matches control metadata SHA-256.",
+        "ELF architecture, SONAME, dependencies and exports inspected.",
+        "Raw (35) and wrapper (70) Raku assertions passed in Alpine 3.24.3 ARM64, with networking disabled."
+      ]
+    },
+    {
+      "resource": "lib/macos-aarch64/libz.dylib",
+      "sha256": "a707587395549efd93790efd343b729e9fe8616bc5772d44efa9cb26130b6167",
+      "source": {
+        "publisher": "zlib upstream",
+        "url": "https://zlib.net/zlib-1.4.tar.gz",
+        "sha256": "02dd159783677a749c04adbdd02b55b8a2bcc7e054f51b76b549199a916ad584"
+      },
+      "build": {
+        "compiler": "Apple clang 21.0.0 (clang-2100.0.123.102)",
+        "sdk": "26.4",
+        "CC": "clang -arch arm64",
+        "CFLAGS": "-O2 -mmacosx-version-min=11.0",
+        "LDFLAGS": "-arch arm64 -mmacosx-version-min=11.0",
+        "commands": [
+          "./configure",
+          "make -j4",
+          "make test"
+        ]
+      },
+      "modifications": [
+        "Set install name to @rpath/libz.1.dylib with install_name_tool.",
+        "Ad-hoc signed with codesign --force --sign -."
+      ],
+      "requirements": {
+        "os": "macOS",
+        "architecture": "aarch64",
+        "minimum_os_version": "11.0",
+        "needed": [
+          "/usr/lib/libSystem.B.dylib"
+        ]
+      },
+      "verification": [
+        "Upstream static and shared make test passed natively.",
+        "Mach-O architecture, minimum OS version and dependencies inspected.",
+        "Final relocated and signed resource passed explicit dlopen, zlibVersion == 1.4 and compression/decompression smoke test natively on ARM64.",
+        "Raw (35) and wrapper (70) Raku assertions passed; isolated installed packages passed archive (23) and PNG/character (34) downstream assertions."
+      ]
+    }
+  ]
+}
