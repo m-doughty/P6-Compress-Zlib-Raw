@@ -16,6 +16,7 @@ jobs:
         os:
           - ubuntu-24.04
           - macos-15-intel
+          - macos-15
           - windows-2025
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
@@ -26,6 +27,17 @@ jobs:
       - uses: Raku/setup-raku@v1
         with:
           raku-version: '2026.09'
+      - name: Check macOS process architecture
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          EXPECTED_ARCH: ${{ matrix.os == 'macos-15' && 'arm64' || 'x86_64' }}
+        run: |
+          # Raku variables must remain literal rather than expand in the shell.
+          # shellcheck disable=SC2016
+          raku -e 'die "Unexpected Raku process architecture: " ~ $*KERNEL.hardware
+          unless $*KERNEL.hardware eq %*ENV<EXPECTED_ARCH>;
+          say "Raku process architecture: " ~ $*KERNEL.hardware'
       - name: Install App::Prove6
         run: zef install --/test App::Prove6
       - name: Install distribution
@@ -38,3 +50,27 @@ jobs:
           raku -e 'use Compress::Zlib::Raw:auth<zef:apogee>;
           die "Expected bundled zlib 1.4" unless zlibVersion() eq "1.4";
           say "Installed bundled zlib: " ~ zlibVersion()'
+
+  alpine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Test bundled musl library on Alpine
+        shell: bash
+        run: |
+          docker run --rm -i \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            rakudo-star:2026.09-alpine sh -es <<'SCRIPT'
+          raku -e 'die "Expected a musl runtime" unless "/proc/self/maps".IO.lines.grep({ .contains("/ld-musl-") || .contains("/libc.musl-") }).elems;
+          say "musl runtime confirmed"'
+          zef install --/test App::Prove6
+          zef install --/test .
+          prove6 -j1 -Ilib t/
+          raku -e 'use Compress::Zlib::Raw:auth<zef:apogee>;
+          die "Expected bundled zlib 1.4" unless zlibVersion() eq "1.4";
+          say "Installed bundled zlib: " ~ zlibVersion()'
+          SCRIPT
